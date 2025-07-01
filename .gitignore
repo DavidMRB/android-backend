@@ -9,7 +9,6 @@
 /vendor/
 ###< symfony/framework-bundle ###
 .devcontainer/
-.docker/
 .idea/
 .DS_Store
 
