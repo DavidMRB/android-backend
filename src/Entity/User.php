@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -46,6 +48,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: 'string', length: 64, unique: true, nullable: true)]
     private ?string $activationToken = null;
+
+    /**
+     * @var Collection<int, AccessToken>
+     */
+    #[ORM\OneToMany(targetEntity: AccessToken::class, mappedBy: 'user_token')]
+    private Collection $accessTokens;
+
+    public function __construct()
+    {
+        $this->accessTokens = new ArrayCollection();
+    }
 
 
     public function getId(): ?int
@@ -177,6 +190,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setActivationToken(?string $activationToken): static
     {
         $this->activationToken = $activationToken;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AccessToken>
+     */
+    public function getAccessTokens(): Collection
+    {
+        return $this->accessTokens;
+    }
+
+    public function addAccessToken(AccessToken $accessToken): static
+    {
+        if (!$this->accessTokens->contains($accessToken)) {
+            $this->accessTokens->add($accessToken);
+            $accessToken->setUserToken($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAccessToken(AccessToken $accessToken): static
+    {
+        if ($this->accessTokens->removeElement($accessToken)) {
+            // set the owning side to null (unless already changed)
+            if ($accessToken->getUserToken() === $this) {
+                $accessToken->setUserToken(null);
+            }
+        }
+
         return $this;
     }
 }

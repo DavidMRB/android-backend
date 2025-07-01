@@ -11,7 +11,6 @@
         "doctrine/doctrine-bundle": "^2.15",
         "doctrine/doctrine-migrations-bundle": "^3.4",
         "doctrine/orm": "^3.4",
-        "gesdinet/jwt-refresh-token-bundle": "^1.5",
         "lexik/jwt-authentication-bundle": "^3.1",
         "symfony/console": "6.4.*",
         "symfony/dotenv": "6.4.*",
