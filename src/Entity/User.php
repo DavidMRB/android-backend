@@ -55,6 +55,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: AccessToken::class, mappedBy: 'user_token')]
     private Collection $accessTokens;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $profileImageUrl = null;
+
     public function __construct()
     {
         $this->accessTokens = new ArrayCollection();
@@ -220,6 +223,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             }
         }
 
+        return $this;
+    }
+
+    public function getProfileImageUrl(): ?string
+    {
+        return $this->profileImageUrl;
+    }
+
+    public function setProfileImageUrl(?string $profileImageUrl): self
+    {
+        $this->profileImageUrl = $profileImageUrl;
         return $this;
     }
 }

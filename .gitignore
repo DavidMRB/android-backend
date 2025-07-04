@@ -11,6 +11,7 @@
 .devcontainer/
 .idea/
 .DS_Store
+/public/uploads
 
 ###> lexik/jwt-authentication-bundle ###
 /config/jwt/*.pem
