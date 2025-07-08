@@ -58,9 +58,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $profileImageUrl = null;
 
+    /**
+     * @var Collection<int, ChatMember>
+     */
+    #[ORM\OneToMany(targetEntity: ChatMember::class, mappedBy: 'user_associated')]
+    private Collection $chatMembers;
+
+    /**
+     * @var Collection<int, Message>
+     */
+    #[ORM\OneToMany(targetEntity: Message::class, mappedBy: 'sender')]
+    private Collection $messages;
+
     public function __construct()
     {
         $this->accessTokens = new ArrayCollection();
+        $this->chatMembers = new ArrayCollection();
+        $this->messages = new ArrayCollection();
     }
 
 
@@ -234,6 +248,66 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setProfileImageUrl(?string $profileImageUrl): self
     {
         $this->profileImageUrl = $profileImageUrl;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ChatMember>
+     */
+    public function getChatMembers(): Collection
+    {
+        return $this->chatMembers;
+    }
+
+    public function addChatMember(ChatMember $chatMember): static
+    {
+        if (!$this->chatMembers->contains($chatMember)) {
+            $this->chatMembers->add($chatMember);
+            $chatMember->setUserAssociated($this);
+        }
+
+        return $this;
+    }
+
+    public function removeChatMember(ChatMember $chatMember): static
+    {
+        if ($this->chatMembers->removeElement($chatMember)) {
+            // set the owning side to null (unless already changed)
+            if ($chatMember->getUserAssociated() === $this) {
+                $chatMember->setUserAssociated(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Message>
+     */
+    public function getMessages(): Collection
+    {
+        return $this->messages;
+    }
+
+    public function addMessage(Message $message): static
+    {
+        if (!$this->messages->contains($message)) {
+            $this->messages->add($message);
+            $message->setSender($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMessage(Message $message): static
+    {
+        if ($this->messages->removeElement($message)) {
+            // set the owning side to null (unless already changed)
+            if ($message->getSender() === $this) {
+                $message->setSender(null);
+            }
+        }
+
         return $this;
     }
 }
