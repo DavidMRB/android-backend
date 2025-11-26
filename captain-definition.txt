@@ -1,0 +1,39 @@
+schemaVersion: 2
+displayName: 'GopenuxChat Backend'
+documentation: 'https://github.com/Bootcamp-GPX/backend'
+defaultPushWebhookPath: '/webhooks/push'
+
+services:
+  php:
+    displayName: 'PHP FPM'
+    dockerfilePath: '.docker/php/Dockerfile'
+    
+  nginx:
+    displayName: 'Nginx Web Server'
+    dockerfilePath: '.docker/nginx/Dockerfile'
+    ports:
+      - containerPort: 80
+        hostPort: 80
+      - containerPort: 443
+        hostPort: 443
+
+  database:
+    displayName: 'PostgreSQL'
+    image: 'postgres:16-alpine'
+    ports:
+      - containerPort: 5432
+        hostPort: 5432
+    
+instructionMarkdown: |
+  # GopenuxChat Backend Deployment
+  
+  ## Required Environment Variables
+  - `APP_ENV`: Application environment (prod/dev)
+  - `APP_SECRET`: Symfony secret key
+  - `DATABASE_URL`: PostgreSQL connection URL
+  
+  ## First Time Setup
+  ```
+  php bin/console doctrine:migrations:migrate
+  php bin/console cache:clear
+  ```

@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  php:
+    build:
+      context: .
+      dockerfile: ./.docker/php/Dockerfile
+      args:
+        TIMEZONE: ${TIMEZONE:-UTC}
+    container_name: php-fpm
+    environment:
+      APP_ENV: ${APP_ENV:-prod}
+      APP_SECRET: ${APP_SECRET}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB}
+      TIMEZONE: ${TIMEZONE:-UTC}
+    depends_on:
+      - database
+    networks:
+      - gopenux-network
+    restart: unless-stopped
+
+  nginx:
+    build:
+      context: .
+      dockerfile: ./.docker/nginx/Dockerfile
+    container_name: nginx-server
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - php
+    networks:
+      - gopenux-network
+    restart: unless-stopped
+
+  database:
+    image: postgres:${POSTGRES_VERSION:-16}-alpine
+    container_name: postgres-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-app}
+      POSTGRES_USER: ${POSTGRES_USER:-app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - gopenux-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  gopenux-network:
+    driver: bridge
