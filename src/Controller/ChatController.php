@@ -229,15 +229,11 @@ class ChatController extends AbstractController
         // Mensajes
         $messages = [];
         foreach ($chat->getMessages() as $message) {
-            $sender = $message->getSender();
             $messages[] = [
                 'id' => $message->getId(),
-                'sender' => [
-                    'id' => $sender->getId(),
-                    'name' => $sender->getName()
-                ],
+                'sender' => $message->getSender()->getId(),
                 'content' => $message->getContent(),
-                'sent_at' => $message->getCreatedAt()->format('c')
+                'sent_at' => $message->getCreatedAt()->format('Y-m-d H:i:s')
             ];
         }
 
