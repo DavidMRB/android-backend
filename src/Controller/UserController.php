@@ -66,7 +66,7 @@ final class UserController extends AbstractController
         $user->setLastName($data['last_name']);
         $user->setAge($data['age']);
         $user->setEmail($data['email']);
-        $user->setIsActive(false);
+        $user->setIsActive(true);
 
         try {
             $user->setActivationToken(bin2hex(random_bytes(16)));
