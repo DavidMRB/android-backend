@@ -1,10 +1,10 @@
-FROM php:8.3-fpm-bookworm AS php-builder
+FROM php:8.3-fpm-bookworm
 
 ARG TIMEZONE=UTC
 
-COPY php.ini /usr/local/etc/php/conf.d/docker-php-config.ini
-
+# Instalar Nginx y otras dependencias
 RUN apt-get update && apt-get install -y \
+    nginx \
     bash \
     gnupg \
     g++ \
@@ -22,7 +22,11 @@ RUN apt-get update && apt-get install -y \
     libxslt1-dev \
     libpq-dev \
     acl \
+    supervisor \
     && echo 'alias sf="php bin/console"' >> ~/.bashrc
+
+# Configurar PHP
+COPY php.ini /usr/local/etc/php/conf.d/docker-php-config.ini
 
 RUN docker-php-ext-configure gd --with-jpeg --with-freetype 
 
@@ -32,70 +36,29 @@ RUN docker-php-ext-install \
 RUN ln -snf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime && echo ${TIMEZONE} > /etc/timezone \
     && printf '[PHP]\ndate.timezone = "%s"\n', ${TIMEZONE} > /usr/local/etc/php/conf.d/tzone.ini
 
+# Instalar Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 WORKDIR /var/www/symfony
 
+# Copiar y instalar dependencias
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --optimize-autoloader
 
+# Copiar código
 COPY . .
 
 RUN chown -R www-data:www-data /var/www/symfony
 
-# Stage 2: Nginx
-FROM nginx:alpine
-
-COPY .docker/nginx/nginx.conf /etc/nginx/
+# Configurar Nginx
+COPY .docker/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY .docker/nginx/templates /etc/nginx/templates/
-RUN echo "upstream php-upstream { server localhost:9000; }" > /etc/nginx/conf.d/upstream.conf
+RUN echo "upstream php-upstream { server 127.0.0.1:9000; }" > /etc/nginx/conf.d/upstream.conf
 
-COPY --from=php-builder /var/www/symfony /var/www/symfony
+# Configurar Supervisor para ejecutar PHP-FPM y Nginx
+RUN mkdir -p /var/log/supervisor
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-EXPOSE 80
-EXPOSE 443
+EXPOSE 80 443 9000
 
-# Stage 3: PHP Runtime
-FROM php:8.3-fpm-bookworm
-
-ARG TIMEZONE=UTC
-
-COPY php.ini /usr/local/etc/php/conf.d/docker-php-config.ini
-
-RUN apt-get update && apt-get install -y \
-    bash \
-    gnupg \
-    g++ \
-    procps \
-    openssl \
-    git \
-    unzip \
-    zlib1g-dev \
-    libzip-dev \
-    libfreetype6-dev \
-    libpng-dev \
-    libjpeg-dev \
-    libicu-dev  \
-    libonig-dev \
-    libxslt1-dev \
-    libpq-dev \
-    acl
-
-RUN docker-php-ext-configure gd --with-jpeg --with-freetype 
-
-RUN docker-php-ext-install \
-    pdo pdo_mysql pdo_pgsql zip xsl gd intl opcache exif mbstring
-
-RUN ln -snf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime && echo ${TIMEZONE} > /etc/timezone
-
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-WORKDIR /var/www/symfony
-
-COPY --from=php-builder /var/www/symfony /var/www/symfony
-
-RUN chown -R www-data:www-data /var/www/symfony
-
-EXPOSE 9000
-
-CMD ["php-fpm"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
