@@ -48,6 +48,10 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts
 # Copiar código
 COPY . .
 
+# Establecer variables de entorno
+ENV APP_ENV=prod
+ENV APP_DEBUG=0
+
 # Ejecutar solo cache:clear (ignorar errores de bundles de dev)
 RUN php bin/console cache:clear --no-warmup || true
 
