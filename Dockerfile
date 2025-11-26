@@ -55,8 +55,7 @@ RUN chown -R www-data:www-data /var/www/symfony
 
 # Configurar Nginx
 COPY .docker/nginx/nginx.conf /etc/nginx/nginx.conf
-COPY .docker/nginx/templates /etc/nginx/templates/
-RUN echo "upstream php-upstream { server 127.0.0.1:9000; }" > /etc/nginx/conf.d/upstream.conf
+COPY .docker/nginx/templates /etc/nginx/templates/ || true
 
 # Configurar Supervisor para ejecutar PHP-FPM y Nginx
 RUN mkdir -p /var/log/supervisor
