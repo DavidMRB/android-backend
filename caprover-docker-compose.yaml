@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  php:
+    image: $$cap_app_name-php:$$cap_app_version
+    build:
+      context: .
+      dockerfile: ./.docker/php/Dockerfile
+      args:
+        TIMEZONE: $$cap_timezone
+    environment:
+      APP_ENV: $$cap_app_env
+      APP_SECRET: $$cap_app_secret
+      DATABASE_URL: postgresql://$$cap_postgres_user:$$cap_postgres_password@$$cap_app_name-db:5432/$$cap_postgres_db
+      TIMEZONE: $$cap_timezone
+    depends_on:
+      - database
+    networks:
+      - $$cap_app_name-network
+
+  nginx:
+    image: $$cap_app_name-nginx:$$cap_app_version
+    build:
+      context: .
+      dockerfile: ./.docker/nginx/Dockerfile
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - php
+    networks:
+      - $$cap_app_name-network
+
+  database:
+    image: postgres:$$cap_postgres_version-alpine
+    environment:
+      POSTGRES_DB: $$cap_postgres_db
+      POSTGRES_USER: $$cap_postgres_user
+      POSTGRES_PASSWORD: $$cap_postgres_password
+    volumes:
+      - $$cap_app_name-db-data:/var/lib/postgresql/data
+    networks:
+      - $$cap_app_name-network
+
+volumes:
+  $$cap_app_name-db-data:
+
+networks:
+  $$cap_app_name-network:

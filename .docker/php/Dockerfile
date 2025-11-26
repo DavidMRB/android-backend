@@ -38,3 +38,9 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 WORKDIR /var/www/symfony
 
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --optimize-autoloader
+
+COPY . .
+
+RUN chown -R www-data:www-data /var/www/symfony

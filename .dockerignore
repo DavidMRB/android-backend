@@ -1,0 +1,11 @@
+.env
+.env.local
+.env.*.local
+.git
+.gitignore
+var/log/*
+var/cache/*
+vendor/
+node_modules/
+.DS_Store
+composer.lock

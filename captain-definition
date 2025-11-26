@@ -1,0 +1,68 @@
+{
+ "schemaVersion": 2,
+ "templateId": "php-mysql",
+ "displayName": "GopenuxChat Backend",
+ "isComposeFile": true,
+ "composeFile": "./compose.yaml",
+ "documentation": "https://github.com/Bootcamp-GPX/backend",
+ "services": {
+  "php": {
+   "displayName": "PHP FPM Service",
+   "directory": "./.docker/php"
+  },
+  "nginx": {
+   "displayName": "Nginx Web Server",
+   "directory": "./.docker/nginx"
+  },
+  "database": {
+   "displayName": "PostgreSQL Database"
+  }
+ },
+ "ports": [
+  {
+   "containerPort": 80,
+   "description": "HTTP Port"
+  },
+  {
+   "containerPort": 443,
+   "description": "HTTPS Port"
+  }
+ ],
+ "env": [
+  {
+   "key": "APP_ENV",
+   "description": "Symfony environment",
+   "default": "prod"
+  },
+  {
+   "key": "APP_SECRET",
+   "description": "Symfony secret key",
+   "default": ""
+  },
+  {
+   "key": "POSTGRES_DB",
+   "description": "PostgreSQL database name",
+   "default": "app"
+  },
+  {
+   "key": "POSTGRES_USER",
+   "description": "PostgreSQL user",
+   "default": "app"
+  },
+  {
+   "key": "POSTGRES_PASSWORD",
+   "description": "PostgreSQL password",
+   "default": ""
+  },
+  {
+   "key": "POSTGRES_VERSION",
+   "description": "PostgreSQL version",
+   "default": "16"
+  },
+  {
+   "key": "TIMEZONE",
+   "description": "Application timezone",
+   "default": "UTC"
+  }
+ ]
+}
