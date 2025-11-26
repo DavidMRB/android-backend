@@ -1,10 +1,9 @@
 {
   "schemaVersion": 2,
-  "dockerfilePath": "./Dockerfile",
+  "dockerfilePath": "./docker-compose.prod.yaml",
   "displayName": "GopenuxChat Backend",
   "description": "Symfony backend with PHP, Nginx and PostgreSQL",
   "isComposeFile": true,
-  "composeFile": "./docker-compose.prod.yaml",
   "serviceType": "DockerCompose",
   "ports": [
     {
