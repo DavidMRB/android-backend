@@ -41,12 +41,15 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 WORKDIR /var/www/symfony
 
-# Copiar y instalar dependencias
+# Copiar y instalar dependencias sin ejecutar scripts
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader --no-scripts
 
 # Copiar código
 COPY . .
+
+# Ahora ejecutar los scripts después de copiar todo el código
+RUN composer run-script post-install-cmd
 
 RUN chown -R www-data:www-data /var/www/symfony
 
