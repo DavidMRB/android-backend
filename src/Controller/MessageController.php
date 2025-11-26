@@ -30,13 +30,9 @@ class MessageController extends AbstractController
         $data = [];
 
         foreach ($messages as $message) {
-            $sender = $message->getSender();
             $data[] = [
                 'id' => $message->getId(),
-                'sender' => [
-                    'id' => $sender->getId(),
-                    'name' => $sender->getName()
-                ],
+                'sender' => $message->getSender()->getId(),
                 'content' => $message->getContent(),
                 'sent_at' => $message->getCreatedAt()->format('Y-m-d H:i:s'),
             ];
