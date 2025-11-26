@@ -86,7 +86,7 @@ final class UserController extends AbstractController
             ->to($user->getEmail())
             ->subject('Activa tu cuenta')
             ->html(sprintf(
-                '<p>Gracias por registrarte. Haz clic aquí para activar tu cuenta:</p><a href="http://localhost/auth/activate?token=%s">Activar cuenta</a>',
+                '<p>Gracias por registrarte. Haz clic aquí para activar tu cuenta:</p><a href="http://159.203.187.94/auth/activate?token=%s">Activar cuenta</a>',
                 $user->getActivationToken()
             ));
 
@@ -126,7 +126,8 @@ final class UserController extends AbstractController
         }
 
         if ($request->getMethod() === 'GET') {
-            return $this->json(['user' => [
+		return $this->json(['user' => [
+		'id' => $user->getId(),	
                 'name' => $user->getName(),
                 'last_name' => $user->getLastName(),
                 'age' => $user->getAge(),

@@ -84,7 +84,7 @@ final class AccountActivationController extends AbstractController
             ->to($user->getEmail())
             ->subject('Reenvio de activacion de tu cuenta')
             ->html(sprintf(
-                "<p>Haz clic aquí para activar tu cuenta:</p><a href='http://localhost/auth/activate?token=%s'>Activar cuenta</a>",
+                "<p>Haz clic aquí para activar tu cuenta:</p><a href='http://159.203.187.94/auth/activate?token=%s'>Activar cuenta</a>",
                 $user->getActivationToken()
             ));
 
