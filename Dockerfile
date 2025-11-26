@@ -48,8 +48,8 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts
 # Copiar código
 COPY . .
 
-# Ahora ejecutar los scripts después de copiar todo el código
-RUN composer run-script post-install-cmd
+# Ejecutar solo cache:clear (ignorar errores de bundles de dev)
+RUN php bin/console cache:clear --no-warmup || true
 
 RUN chown -R www-data:www-data /var/www/symfony
 
