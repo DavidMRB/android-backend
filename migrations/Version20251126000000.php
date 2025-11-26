@@ -16,41 +16,46 @@ final class Version20251126000000 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        // Create user_app table
-        $this->addSql('CREATE SEQUENCE IF NOT EXISTS "user_app_id_seq" INCREMENT BY 1 MINVALUE 1 START 1');
-        $this->addSql('CREATE TABLE IF NOT EXISTS "user_app" (id INT NOT NULL, email VARCHAR(180) NOT NULL, roles JSON NOT NULL, password VARCHAR(255) NOT NULL, name VARCHAR(100) NOT NULL, last_name VARCHAR(100) NOT NULL, age INT NOT NULL, is_active BOOLEAN DEFAULT false NOT NULL, activation_token VARCHAR(64) UNIQUE, profile_image_url VARCHAR(255), PRIMARY KEY(id))');
-        $this->addSql('CREATE UNIQUE INDEX IF NOT EXISTS UNIQ_IDENTIFIER_EMAIL ON "user_app" (email)');
-
-        // Create chat table
-        $this->addSql('CREATE SEQUENCE IF NOT EXISTS "chat_id_seq" INCREMENT BY 1 MINVALUE 1 START 1');
-        $this->addSql('CREATE TABLE IF NOT EXISTS "chat" (id INT NOT NULL, name VARCHAR(255) NOT NULL, description TEXT, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, updated_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY(id))');
-
-        // Create message table
-        $this->addSql('CREATE SEQUENCE IF NOT EXISTS "message_id_seq" INCREMENT BY 1 MINVALUE 1 START 1');
-        $this->addSql('CREATE TABLE IF NOT EXISTS "message" (id INT NOT NULL, chat_id INT NOT NULL, user_id INT NOT NULL, content TEXT NOT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, FOREIGN KEY (chat_id) REFERENCES "chat" (id), FOREIGN KEY (user_id) REFERENCES "user_app" (id), PRIMARY KEY(id))');
-        $this->addSql('CREATE INDEX IF NOT EXISTS IDX_B6BD307F1A9A7125 ON "message" (chat_id)');
-        $this->addSql('CREATE INDEX IF NOT EXISTS IDX_B6BD307FA76ED395 ON "message" (user_id)');
-
-        // Create chat_member table
-        $this->addSql('CREATE TABLE IF NOT EXISTS "chat_member" (chat_id INT NOT NULL, user_id INT NOT NULL, joined_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, FOREIGN KEY (chat_id) REFERENCES "chat" (id) ON DELETE CASCADE, FOREIGN KEY (user_id) REFERENCES "user_app" (id) ON DELETE CASCADE, PRIMARY KEY(chat_id, user_id))');
-        $this->addSql('CREATE INDEX IF NOT EXISTS IDX_1B7CF0D6A76ED395 ON "chat_member" (user_id)');
-
-        // Create access_token table
-        $this->addSql('CREATE SEQUENCE IF NOT EXISTS "access_token_id_seq" INCREMENT BY 1 MINVALUE 1 START 1');
-        $this->addSql('CREATE TABLE IF NOT EXISTS "access_token" (id INT NOT NULL, user_id INT NOT NULL, token VARCHAR(500) NOT NULL, expires_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, FOREIGN KEY (user_id) REFERENCES "user_app" (id), PRIMARY KEY(id))');
-        $this->addSql('CREATE INDEX IF NOT EXISTS IDX_9386F3B2A76ED395 ON "access_token" (user_id)');
+        $this->addSql('CREATE SEQUENCE access_token_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
+        $this->addSql('CREATE SEQUENCE chat_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
+        $this->addSql('CREATE SEQUENCE chat_member_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
+        $this->addSql('CREATE SEQUENCE message_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
+        $this->addSql('CREATE SEQUENCE "user_app_id_seq" INCREMENT BY 1 MINVALUE 1 START 1');
+        $this->addSql('CREATE TABLE access_token (id INT NOT NULL, user_token_id INT NOT NULL, token TEXT, expires_at TIMESTAMP(0) WITHOUT TIME ZONE, PRIMARY KEY(id))');
+        $this->addSql('CREATE INDEX IDX_B6A2DD68A15303B9 ON access_token (user_token_id)');
+        $this->addSql('CREATE TABLE chat (id INT NOT NULL, name VARCHAR(255), is_group BOOLEAN NOT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE chat_member (id INT NOT NULL, chat_id INT NOT NULL, user_associated_id INT NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE INDEX IDX_1738CD591A9A7125 ON chat_member (chat_id)');
+        $this->addSql('CREATE INDEX IDX_1738CD594DC95A3E ON chat_member (user_associated_id)');
+        $this->addSql('CREATE TABLE message (id INT NOT NULL, chat_id INT NOT NULL, sender_id INT NOT NULL, content TEXT NOT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE INDEX IDX_B6BD307FCF36BB23 ON message (chat_id)');
+        $this->addSql('CREATE INDEX IDX_B6BD307FF624B39D ON message (sender_id)');
+        $this->addSql('CREATE TABLE "user_app" (id INT NOT NULL, email VARCHAR(180) NOT NULL, roles JSON NOT NULL, password VARCHAR(255) NOT NULL, name VARCHAR(255) NOT NULL, last_name VARCHAR(255) NOT NULL, age INT NOT NULL, is_active BOOLEAN NOT NULL, activation_token VARCHAR(64), profile_image_url VARCHAR(255), PRIMARY KEY(id))');
+        $this->addSql('CREATE UNIQUE INDEX UNIQ_22781144E7927C74 ON "user_app" (email)');
+        $this->addSql('CREATE UNIQUE INDEX UNIQ_22781144B1B4826B ON "user_app" (activation_token)');
+        $this->addSql('ALTER TABLE access_token ADD CONSTRAINT FK_B6A2DD68A15303B9 FOREIGN KEY (user_token_id) REFERENCES "user_app" (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE chat_member ADD CONSTRAINT FK_1738CD591A9A7125 FOREIGN KEY (chat_id) REFERENCES chat (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE chat_member ADD CONSTRAINT FK_1738CD594DC95A3E FOREIGN KEY (user_associated_id) REFERENCES "user_app" (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE message ADD CONSTRAINT FK_B6BD307FCF36BB23 FOREIGN KEY (chat_id) REFERENCES chat (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE message ADD CONSTRAINT FK_B6BD307FF624B39D FOREIGN KEY (sender_id) REFERENCES "user_app" (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
     }
 
     public function down(Schema $schema): void
     {
-        $this->addSql('DROP TABLE IF EXISTS "access_token" CASCADE');
-        $this->addSql('DROP TABLE IF EXISTS "chat_member" CASCADE');
-        $this->addSql('DROP TABLE IF EXISTS "message" CASCADE');
-        $this->addSql('DROP TABLE IF EXISTS "chat" CASCADE');
-        $this->addSql('DROP TABLE IF EXISTS "user_app" CASCADE');
-        $this->addSql('DROP SEQUENCE IF EXISTS "access_token_id_seq" CASCADE');
-        $this->addSql('DROP SEQUENCE IF EXISTS "message_id_seq" CASCADE');
-        $this->addSql('DROP SEQUENCE IF EXISTS "chat_id_seq" CASCADE');
-        $this->addSql('DROP SEQUENCE IF EXISTS "user_app_id_seq" CASCADE');
+        $this->addSql('ALTER TABLE access_token DROP CONSTRAINT FK_B6A2DD68A15303B9');
+        $this->addSql('ALTER TABLE chat_member DROP CONSTRAINT FK_1738CD591A9A7125');
+        $this->addSql('ALTER TABLE chat_member DROP CONSTRAINT FK_1738CD594DC95A3E');
+        $this->addSql('ALTER TABLE message DROP CONSTRAINT FK_B6BD307FCF36BB23');
+        $this->addSql('ALTER TABLE message DROP CONSTRAINT FK_B6BD307FF624B39D');
+        $this->addSql('DROP TABLE access_token');
+        $this->addSql('DROP TABLE chat');
+        $this->addSql('DROP TABLE chat_member');
+        $this->addSql('DROP TABLE message');
+        $this->addSql('DROP TABLE "user_app"');
+        $this->addSql('DROP SEQUENCE access_token_id_seq CASCADE');
+        $this->addSql('DROP SEQUENCE chat_id_seq CASCADE');
+        $this->addSql('DROP SEQUENCE chat_member_id_seq CASCADE');
+        $this->addSql('DROP SEQUENCE message_id_seq CASCADE');
+        $this->addSql('DROP SEQUENCE "user_app_id_seq" CASCADE');
     }
 }
