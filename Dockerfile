@@ -55,7 +55,7 @@ RUN chown -R www-data:www-data /var/www/symfony
 
 # Configurar Nginx
 COPY .docker/nginx/nginx.conf /etc/nginx/nginx.conf
-COPY .docker/nginx/templates /etc/nginx/templates/ || true
+COPY .docker/nginx/templates /etc/nginx/templates/
 
 # Configurar Supervisor para ejecutar PHP-FPM y Nginx
 RUN mkdir -p /var/log/supervisor
