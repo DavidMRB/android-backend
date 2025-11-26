@@ -26,7 +26,7 @@ RUN apt-get update && apt-get install -y \
     && echo 'alias sf="php bin/console"' >> ~/.bashrc
 
 # Configurar PHP
-COPY php.ini /usr/local/etc/php/conf.d/docker-php-config.ini
+COPY .docker/php/php.ini /usr/local/etc/php/conf.d/docker-php-config.ini
 
 RUN docker-php-ext-configure gd --with-jpeg --with-freetype 
 
