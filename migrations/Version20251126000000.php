@@ -18,7 +18,7 @@ final class Version20251126000000 extends AbstractMigration
     {
         // Create user_app table
         $this->addSql('CREATE SEQUENCE IF NOT EXISTS "user_app_id_seq" INCREMENT BY 1 MINVALUE 1 START 1');
-        $this->addSql('CREATE TABLE IF NOT EXISTS "user_app" (id INT NOT NULL, email VARCHAR(180) NOT NULL, roles JSON NOT NULL, password VARCHAR(255) NOT NULL, name VARCHAR(100) NOT NULL, last_name VARCHAR(100) NOT NULL, age INT NOT NULL, is_active BOOLEAN DEFAULT false NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE IF NOT EXISTS "user_app" (id INT NOT NULL, email VARCHAR(180) NOT NULL, roles JSON NOT NULL, password VARCHAR(255) NOT NULL, name VARCHAR(100) NOT NULL, last_name VARCHAR(100) NOT NULL, age INT NOT NULL, is_active BOOLEAN DEFAULT false NOT NULL, activation_token VARCHAR(64) UNIQUE, profile_image_url VARCHAR(255), PRIMARY KEY(id))');
         $this->addSql('CREATE UNIQUE INDEX IF NOT EXISTS UNIQ_IDENTIFIER_EMAIL ON "user_app" (email)');
 
         // Create chat table
