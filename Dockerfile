@@ -52,6 +52,12 @@ COPY . .
 ENV APP_ENV=prod
 ARG APP_DEBUG=0
 ENV APP_DEBUG=${APP_DEBUG}
+ENV JWT_PASSPHRASE=symfony_jwt_secret
+
+# Generar claves JWT
+RUN mkdir -p config/jwt && \
+    openssl genrsa -out config/jwt/private.pem -aes256 -passout env:JWT_PASSPHRASE 4096 && \
+    openssl rsa -in config/jwt/private.pem -pubout -out config/jwt/public.pem -passin env:JWT_PASSPHRASE
 
 # Ejecutar solo cache:clear (ignorar errores de bundles de dev)
 RUN php bin/console cache:clear --no-warmup || true
