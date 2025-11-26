@@ -1,7 +1,35 @@
 {
   "schemaVersion": 2,
-  "displayName": "GopenuxChat Backend",
-  "description": "Symfony backend with PHP, Nginx and PostgreSQL",
-  "isComposeFile": true,
-  "composeFile": "./docker-compose.prod.yaml"
+  "imageName": "nginx:latest",
+  "ports": ["80", "443"],
+  "env": [
+    {
+      "key": "APP_ENV",
+      "default": "prod"
+    },
+    {
+      "key": "APP_SECRET",
+      "default": ""
+    },
+    {
+      "key": "POSTGRES_DB",
+      "default": "app"
+    },
+    {
+      "key": "POSTGRES_USER",
+      "default": "app"
+    },
+    {
+      "key": "POSTGRES_PASSWORD",
+      "default": ""
+    },
+    {
+      "key": "POSTGRES_VERSION",
+      "default": "16"
+    },
+    {
+      "key": "TIMEZONE",
+      "default": "UTC"
+    }
+  ]
 }
